@@ -1,20 +1,12 @@
 let preQuestions = false;
 
 const questionsEndpoint = 'https://quiztai.herokuapp.com/api/quiz';
-const promise = new Promise((resolve, reject) => {
-    setTimeout(() => {
-        fetch(questionsEndpoint)
-            .then(resp => resp.json())
-            .then(resp => {
-                preQuestions = resp;
-                startQuiz();
-            });
-    }, 50);
-});
-
-promise.then((response) => {
-    console.log("Test! " + response);
-});
+fetch(questionsEndpoint)
+    .then(resp => resp.json())
+    .then(resp => {
+        preQuestions = resp;
+        startQuiz();
+    });
 
 const next = document.querySelector('.next');
 const previous = document.querySelector('.previous');
