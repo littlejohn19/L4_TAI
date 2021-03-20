@@ -6,7 +6,7 @@ const answers = document.querySelectorAll('.list-group-item');
 const currentQuestion = document.querySelector('.currentQuestion');
 const progressBar = document.querySelector('.progress-bar');
 const progressBarTime = document.querySelector('.progress-bar-time');
-const steps = document.querySelector('.createSteps');
+const steps = document.querySelector('.steps');
 
 const results = document.querySelector('.results');
 const pointsElem = document.querySelector('.score');
@@ -19,6 +19,7 @@ let time = 0;
 let countOfQuestions = null;
 let countOfAllAnswers = null;
 let preQuestions = null;
+let countTimer = null;
 
 fetch(questionsEndpoint)
     .then(resp => resp.json())
@@ -37,7 +38,17 @@ function startQuiz() {
 }
 
 function createSteps() {
+    preQuestions.forEach((question) => {
+        const stepWrapper = document.createElement('div');
+        stepWrapper.classList.add('step-wrapper');
 
+        const step = document.createElement('div');
+        step.classList.add('step');
+        step.classList.add('empty-step');
+        stepWrapper.appendChild(step);
+
+        steps.appendChild(stepWrapper);
+    });
 }
 
 function addEventListeners() {
@@ -78,35 +89,70 @@ function saveAndShowResults() {
 function restartQuiz() {
     index = 0;
     points = 0;
-    let userScorePoint = document.querySelector('.score');
+    const userScorePoint = document.querySelector('.score');
+    steps.innerHTML = '';
+    createSteps();
     list.style.display = 'block';
     results.style.display = 'none';
     userScorePoint.innerHTML = points;
-    setQuestion(index);
+    setQuestion();
     activateAnswers();
-
 }
 
 function doAction(event) {
-    if (event.target.innerHTML === preQuestions[index].correct_answer) {
+    stopTime();
+    disableAnswers();
+
+    const target = event.target;
+
+    if (target.innerHTML === preQuestions[index].correct_answer) {
         points++;
         pointsElem.innerText = points;
         markCorrect(event.target);
     }
     else {
         markInCorrect(event.target);
+        setTimeout(() => {
+            markValid(target.parentNode, preQuestions[index].correct_answer);
+        }, second / 2);
     }
-    disableAnswers();
+
+    setTimeout(() => {
+        nextQuestion();
+    }, second * 2.5);
+}
+
+function markValid(answersList, correctAnswer) {
+    const currentAnswers = answersList.children;
+    for (let i = 0; i < countOfAllAnswers; i++) {
+        if (currentAnswers[i].innerHTML === correctAnswer) {
+            currentAnswers[i].classList.add(correctAnswerClass);
+        }
+    }
 }
 
 function setQuestion() {
     clearClasses();
+    stopTime();
     setTime(timePerQuestion);
     setProgressBarColor(progressBarChillColor);
-    const countTime = setInterval(() => {
+    setCurrentStep();
+    countTime();
+    setAnswers();
+}
+
+function stopTime() {
+    if (countTimer) {
+        clearInterval(countTimer);
+    }
+}
+
+function countTime() {
+    countTimer = setInterval(() => {
         time--;
         if (time < 0) {
-            clearInterval(countTime);
+            clearInterval(countTimer);
+            setStepColor('bg-warning');
             nextQuestion();
         } else {
             if (time === timeDanger) {
@@ -117,7 +163,6 @@ function setQuestion() {
             setTime(time);
         }
     }, second);
-    setAnswers();
 }
 
 function setAnswers() {
@@ -134,6 +179,21 @@ function setAnswers() {
     currentQuestion.innerHTML = `${index + 1} / ${countOfQuestions}`;
 }
 
+function setCurrentStep() {
+    setStepColor('bg-secondary', true);
+}
+
+function setStepColor(className, isFirst) {
+    const currentStepWrapper = steps.children[index];
+    const currentStep = currentStepWrapper.querySelector('.step');
+
+    if (!!isFirst && isFirst) {
+        currentStep.classList.remove('empty-step');
+    }
+
+    currentStep.classList.add(className);
+}
+
 function setProgressBarColor(color) {
     progressBar.style.backgroundColor = color;
 }
@@ -146,10 +206,12 @@ function setTime(currentTime) {
 
 function markCorrect(elem) {
     elem.classList.add(correctAnswerClass);
+    setStepColor('bg-success');
 }
 
 function markInCorrect(elem) {
     elem.classList.add(incorrectAnswerClass);
+    setStepColor('bg-danger');
 }
 
 function disableAnswers() {

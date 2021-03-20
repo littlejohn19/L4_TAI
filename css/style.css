@@ -35,3 +35,27 @@ body {
     right: 30px;
     display: none;
 }
+
+.steps {
+    margin-bottom: 20px;
+    height: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.steps > .step-wrapper {
+    width: calc(100% / 20);
+    height: 100%;
+    background-color: silver;
+    padding: 1px;
+}
+
+.steps > .step-wrapper > .step {
+    width: 100%;
+    height: 100%;
+}
+
+.empty-step {
+    background-color: white;
+}
