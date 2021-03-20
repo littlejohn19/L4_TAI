@@ -36,22 +36,27 @@
 </div>
 <div class="container results" style="display: none">
     <div class="btn-group-custom">
-        <button class="btn btn-success btn-custom restart">Retake quiz</button>
+        <button class="btn btn-success btn-lg btn-custom restart">Retake quiz</button>
     </div>
     <div class="score">
         <table class="table table-striped">
             <thead>
             <tr>
-                <th>#</th>
-                <th><span class="scoreResult">0</span>/20</th>
-                <th>Average</th>
+                <th colspan="2"></th>
+                <th>Scored points/20</th>
+                <th>Percent %</th>
             </tr>
             </thead>
             <tbody>
             <tr>
-                <th scope="row">Your score</th>
+                <th colspan="2" scope="row">Your score</th>
                 <td class="userScorePoint"></td>
-                <td class="average"></td>
+                <td class="userScorePercent"></td>
+            </tr>
+            <tr>
+                <th colspan="2" scope="row">Average score</th>
+                <td class="avgScorePoint"></td>
+                <td class="avgScorePercent"></td>
             </tr>
             </tbody>
         </table>
