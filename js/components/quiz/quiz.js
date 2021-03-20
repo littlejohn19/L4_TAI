@@ -1,5 +1,3 @@
-const restart = document.querySelector('.restart');
-
 const list = document.querySelector('.list');
 const question = document.querySelector('.question');
 const answers = document.querySelectorAll('.list-group-item');
@@ -7,22 +5,6 @@ const currentQuestion = document.querySelector('.currentQuestion');
 const progressBar = document.querySelector('.progress-bar');
 const progressBarTime = document.querySelector('.progress-bar-time');
 const steps = document.querySelector('.steps');
-
-const results = document.querySelector('.results');
-const pointsElem = document.querySelector('.score');
-const userScorePoint = document.querySelector('.userScorePoint');
-const userScorePercent = document.querySelector('.userScorePercent');
-const avgScorePoint = document.querySelector('.avgScorePoint');
-const avgScorePercent = document.querySelector('.avgScorePercent');
-
-let index = 0;
-let points = 0;
-let time = 0;
-
-let countOfQuestions = null;
-let countOfAllAnswers = null;
-let preQuestions = null;
-let countTimer = null;
 
 fetch(questionsEndpoint)
     .then(resp => resp.json())
@@ -75,57 +57,16 @@ function nextQuestion() {
     }
 }
 
-function saveAndShowResults() {
-    list.style.display = 'none';
-    results.style.display = 'block';
-
-    const lastGamesCounter = localStorage.getItem(countOfGamesLSKey);
-    const gamesCounter = lastGamesCounter != null ? parseInt(lastGamesCounter) + 1: 1;
-    localStorage.setItem(countOfGamesLSKey, gamesCounter);
-
-    const lastAvg = localStorage.getItem(quizAverageLSKey);
-    const avg = lastAvg != null ? (parseFloat(lastAvg) + points) / 2 : points;
-    localStorage.setItem(quizAverageLSKey, avg);
-
-    showPoints();
-}
-
-function showPoints() {
-    const maxPoints = preQuestions.length;
-    const placesAfterPoint = 2;
-
-    userScorePoint.innerHTML = points;
-    userScorePercent.innerHTML = String(points * 100 / maxPoints);
-
-    const avgScores = localStorage.getItem(quizAverageLSKey);
-    avgScorePoint.innerHTML = String(parseFloat(avgScores).toFixed(placesAfterPoint));
-    avgScorePercent.innerHTML = String((parseFloat(avgScores) * 100 / maxPoints).toFixed(placesAfterPoint));
-}
-
-function restartQuiz() {
-    index = points = 0;
-    const userScorePoint = document.querySelector('.score');
-    steps.innerHTML = '';
-    createSteps();
-    list.style.display = 'block';
-    results.style.display = 'none';
-    userScorePoint.innerHTML = points;
-    setQuestion();
-    activateAnswers();
-}
-
 function doAction(event) {
     stopTime();
     disableAnswers();
 
     const target = event.target;
-
     if (target.innerHTML === preQuestions[index].correct_answer) {
         points++;
         pointsElem.innerText = points;
         markCorrect(event.target);
-    }
-    else {
+    } else {
         markInCorrect(event.target);
         setTimeout(() => {
             markValid(target.parentNode, preQuestions[index].correct_answer);
@@ -247,12 +188,3 @@ function activateAnswers() {
         answer.addEventListener('click', doAction);
     });
 }
-
-
-
-
-
-
-
-
-
