@@ -17,10 +17,12 @@ body {
 
 .correct {
     background-color: #289a27;
+    color: #fff;
 }
 
 .incorrect {
     background-color: #c41a21;
+    color: #fff;
 }
 
 .buttons {

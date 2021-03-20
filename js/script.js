@@ -1,21 +1,12 @@
-let preQuestions = false;
-
-const questionsEndpoint = 'https://quiztai.herokuapp.com/api/quiz';
-fetch(questionsEndpoint)
-    .then(resp => resp.json())
-    .then(resp => {
-        preQuestions = resp;
-        startQuiz();
-    });
-
-const next = document.querySelector('.next');
-const previous = document.querySelector('.previous');
 const restart = document.querySelector('.restart');
 
 const list = document.querySelector('.list');
 const question = document.querySelector('.question');
 const answers = document.querySelectorAll('.list-group-item');
 const currentQuestion = document.querySelector('.currentQuestion');
+const progressBar = document.querySelector('.progress-bar');
+const progressBarTime = document.querySelector('.progress-bar-time');
+const steps = document.querySelector('.createSteps');
 
 const results = document.querySelector('.results');
 const pointsElem = document.querySelector('.score');
@@ -23,53 +14,52 @@ const userScorePoint = document.querySelector('.userScorePoint');
 
 let index = 0;
 let points = 0;
+let time = 0;
 
 let countOfQuestions = null;
 let countOfAllAnswers = null;
+let preQuestions = null;
 
-const correctAnswerClass = 'correct';
-const incorrectAnswerClass = 'incorrect';
-const nextQuestionDirection = 'next';
-const prevQuestionDirection = 'left';
+fetch(questionsEndpoint)
+    .then(resp => resp.json())
+    .then(resp => {
+        preQuestions = resp;
+        startQuiz();
+    });
 
-answers.forEach((answer) => {
-    answer.addEventListener('click', doAction);
-})
-
-restart.addEventListener('click', (event) => {
-    event.preventDefault();
-    restartQuiz();
-});
-
-next.addEventListener('click', () => {
-    navigateQuestion(nextQuestionDirection);
-});
-
-previous.addEventListener('click', () => {
-    navigateQuestion(prevQuestionDirection);
-});
-
-function navigateQuestion(direction) {
-    const countOfQuestions = preQuestions.length;
-
-    if (direction === nextQuestionDirection && index < countOfQuestions) {
-        index++;
-        if (index >= preQuestions.length) {
-            saveAndShowResults();
-        } else {
-            setQuestion(index);
-            activateAnswers();
-            activateNavigateButtons();
-        }
-    } else if (direction === prevQuestionDirection && index > 0) {
-        setQuestion(--index);
-        activateAnswers();
-        activateNavigateButtons();
-    }
+function startQuiz() {
+    countOfQuestions = preQuestions.length;
+    countOfAllAnswers = answers.length;
+    createSteps();
+    addEventListeners();
+    setQuestion();
+    activateAnswers();
 }
 
-const quizAverageLSKey = 'quiz-average';
-const countOfGamesLSKey = 'games-counter';
+function createSteps() {
+
+}
+
+function addEventListeners() {
+    answers.forEach((answer) => {
+        answer.addEventListener('click', doAction);
+    })
+
+    restart.addEventListener('click', (event) => {
+        event.preventDefault();
+        restartQuiz();
+    });
+}
+
+function nextQuestion() {
+    index++;
+    if (index >= preQuestions.length) {
+        saveAndShowResults();
+    } else {
+        setQuestion();
+        activateAnswers();
+    }
+}
 
 function saveAndShowResults() {
     list.style.display = 'none';
@@ -109,8 +99,28 @@ function doAction(event) {
     disableAnswers();
 }
 
-function setQuestion(index) {
+function setQuestion() {
     clearClasses();
+    setTime(timePerQuestion);
+    setProgressBarColor(progressBarChillColor);
+    const countTime = setInterval(() => {
+        time--;
+        if (time < 0) {
+            clearInterval(countTime);
+            nextQuestion();
+        } else {
+            if (time === timeDanger) {
+                setProgressBarColor(progressBarDangerColor);
+            } else if (time === timeWarning) {
+                setProgressBarColor(progressBarWarningColor);
+            }
+            setTime(time);
+        }
+    }, second);
+    setAnswers();
+}
+
+function setAnswers() {
     const currentQuestionData = preQuestions[index];
     const countOfCurrentAnswers = currentQuestionData.answers.length;
 
@@ -122,6 +132,16 @@ function setQuestion(index) {
     }
 
     currentQuestion.innerHTML = `${index + 1} / ${countOfQuestions}`;
+}
+
+function setProgressBarColor(color) {
+    progressBar.style.backgroundColor = color;
+}
+
+function setTime(currentTime) {
+    time = currentTime;
+    progressBar.style.width = (time * 10) + '%';
+    progressBarTime.innerHTML = time + 's';
 }
 
 function markCorrect(elem) {
@@ -151,17 +171,8 @@ function activateAnswers() {
     });
 }
 
-function activateNavigateButtons() {
-    previous.disabled = index > 0 ? false : true;
-}
 
-function startQuiz() {
-    countOfQuestions = preQuestions.length;
-    countOfAllAnswers = answers.length;
-    setQuestion(0);
-    activateAnswers();
-    activateNavigateButtons();
-}
+
 
 
 
